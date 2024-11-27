@@ -236,5 +236,4 @@ CREATE TABLE IF NOT EXISTS fin.colision_vehiculo (
        ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,      -- ON DELETE SET DEFAULT: si una colisión relacionada se elimina, el valor de collision_id en esta tabla se establece como un valor predeterminado
                                                          -- ON UPDATE SET DEFAULT: Si el collision_id cambia, esta tabla ajusta el valor automáticamente al predeterminado
     CONSTRAINT Unique_pk2 PRIMARY KEY (unique_id)        -- Puede ser necesario usar collision_id en lugar de unique_id
-
 );
