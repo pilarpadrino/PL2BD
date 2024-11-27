@@ -1,6 +1,7 @@
 CREATE DATABASE PECL2;
 
-create schema temp;
+CREATE SCHEMA IF NOT EXISTS temp;
+
 create schema fin;
 
 -- Tablas iniciales en el esquema temporal, configuradas con todos los atributos como tipo TEXT y se han importado los datos completos correspondientes a cada tabla desde los archivos
@@ -237,3 +238,8 @@ CREATE TABLE IF NOT EXISTS fin.colision_vehiculo (
                                                          -- ON UPDATE SET DEFAULT: Si el collision_id cambia, esta tabla ajusta el valor automáticamente al predeterminado
     CONSTRAINT Unique_pk2 PRIMARY KEY (unique_id)        -- Puede ser necesario usar collision_id en lugar de unique_id
 );
+
+
+
+
+
