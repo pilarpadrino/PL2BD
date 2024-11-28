@@ -54,11 +54,11 @@ CREATE TABLE IF NOT EXISTS temp.personas (
 
 CREATE TABLE IF NOT EXISTS temp.vehiculos(
     vehicle_id  TEXT,
-    state_registration TEXT,
+    vehicle_year    TEXT,
     vehicle_type    TEXT,
-    vehicle_make    TEXT,
     vehicle_model   TEXT,
-    vehicle_year    TEXT
+    vehicle_make    TEXT,
+    state_registration TEXT
 );
 
 CREATE TABLE IF NOT EXISTS temp.colision_persona (
@@ -164,14 +164,27 @@ CREATE TABLE IF NOT EXISTS fin.persona (
 );
 
 CREATE TABLE IF NOT EXISTS fin.vehiculo (
-   vehicle_id UUID,
-   state_registration INT NULL,
-   vehicle_type VARCHAR(50),
-   vehicle_year INT,
-   vehicle_model VARCHAR(25),
-   vehicle_make VARCHAR(25),
-   CONSTRAINT Vehiculo_pk PRIMARY KEY (vehicle_id)
+    vehicle_id UUID,
+    vehicle_year INT,
+    vehicle_type VARCHAR(50),
+    vehicle_model VARCHAR(25),
+    vehicle_make VARCHAR(25),
+    state_registration TEXT
+
 );
+INSERT INTO fin.vehiculo (vehicle_id, vehicle_year, vehicle_type, vehicle_model, vehicle_make, state_registration)
+SELECT
+    CASE
+        WHEN vehicle_id ~* '^[0-9a-fA-F-]{36}$' THEN vehicle_id::UUID
+    
+    END AS vehicle_id,
+    vehicle_year::INT,  -- Convertir a INT si es necesario
+    vehicle_type,
+    vehicle_model,
+    vehicle_make,
+    state_registration
+FROM temp.vehiculos;
+
 
 CREATE TABLE IF NOT EXISTS fin.colision_persona (
    collision_id UUID,
@@ -238,6 +251,27 @@ CREATE TABLE IF NOT EXISTS fin.colision_vehiculo (
                                                          -- ON UPDATE SET DEFAULT: Si el collision_id cambia, esta tabla ajusta el valor automáticamente al predeterminado
     CONSTRAINT Unique_pk2 PRIMARY KEY (unique_id)        -- Puede ser necesario usar collision_id en lugar de unique_id
 );
+
+COPY temp.vehiculos FROM 'C:\Users\pilar\OneDrive\Escritorio\DatosPL2\Vehicles.csv'
+DELIMITER ';' CSV HEADER NULL '';
+
+COPY temp.personas FROM 'C:\Users\pilar\OneDrive\Escritorio\DatosPL2\personas2.csv'
+DELIMITER ';' CSV HEADER NULL '';
+
+COPY temp.accidentes FROM 'C:\Users\pilar\OneDrive\Escritorio\DatosPL2\Collisions_Crashes_20241020.csv'
+DELIMITER ',' CSV HEADER NULL '';
+
+COPY temp.colision_persona FROM 'C:\Users\pilar\OneDrive\Escritorio\DatosPL2\Collisions_Person_20241020.csv'
+DELIMITER ',' CSV HEADER NULL '';
+
+COPY temp.colision_vehiculo FROM 'C:\Users\pilar\OneDrive\Escritorio\DatosPL2\Collisions_Vehicles_20241020.csv'
+DELIMITER ',' CSV HEADER NULL'';
+
+
+SELECT * FROM temp.vehiculos LIMIT 10;
+
+SELECT * FROM temp.accidentes LIMIT 10;
+
 
 
 
