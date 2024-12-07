@@ -568,10 +568,11 @@ ORDER BY total DESC
 LIMIT 5;
 
 --4) Mostrar los datos de aquellos conductores implicados en más de 1 accidente: RESULTADO EXTRAÑO SALEN IDs RAROS
-SELECT person_id
+SELECT person_id, COUNT(*) AS num_accidentes
 FROM fin.colision_persona
 GROUP BY person_id
-HAVING COUNT(*) > 1;
+HAVING COUNT(*) > 1
+ORDER BY num_accidentes DESC;
 
 -- 5)  Mostrar los datos de los conductores con accidentes mayores de 65 años y menores de 26 ordenados ascendentemente:
 SELECT *
@@ -580,11 +581,15 @@ WHERE person_age > 65 OR person_age < 26
 ORDER BY person_age ASC ;
 
 -- 6) Mostrar los datos de los conductores que tienen como vehículo un “Pickup”: (NO APARECEN RESULTADOS) Si por ejemplo pones '
-SELECT persona.*, vehiculo.vehicle_type
-FROM fin.persona, fin.vehiculo, (SELECT distinct person_id, vehicle_id
-FROM fin.colision_persona
-WHERE ped_role LIKE '%Driver%') AS C
-WHERE fin.persona.person_id = C.person_id AND C.vehicle_id = fin.vehiculo.vehicle_id AND fin.vehiculo.vehicle_type LIKE 'Pickup';
+SELECT p.*, v.vehicle_type
+FROM fin.persona AS p, fin.vehiculo AS v, (
+    SELECT DISTINCT person_id, vehicle_id
+    FROM fin.colision_persona
+    WHERE ped_role LIKE '%Driver%'
+) AS C
+WHERE p.person_id = C.person_id
+    AND C.vehicle_id = v.vehicle_id
+    AND v.vehicle_type LIKE 'Pickup';
 
 --7)Mostrar las 3 marcas de vehículos que sufren menos accidentes y los 3 tipos de vehículo que menos accidentes sufren:
 --7.1)Marcas de vehículos:
@@ -608,12 +613,9 @@ GROUP BY vehicle_make
 ORDER BY accident_count DESC;
 
 --9) Mostrar la procedencia de los conductores que han sufrido accidentes:
-SELECT
-    person_city,
-    person_state,
-    person_id
-FROM fin.persona
-WHERE person_id IN (
+SELECT p.person_id, p.person_city, p.person_state
+FROM fin.persona AS p
+WHERE p.person_id IN (
     SELECT DISTINCT person_id
     FROM fin.colision_persona
     WHERE ped_role = 'Driver'
