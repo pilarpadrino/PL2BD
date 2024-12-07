@@ -156,8 +156,9 @@ CREATE TABLE IF NOT EXISTS fin.accidentes (
    contributing_factor_vehicle_2 VARCHAR(100),
    contributing_factor_vehicle_3 VARCHAR(100),
    contributing_factor_vehicle_4 VARCHAR(100),
-   contributing_factor_vehicle_5 VARCHAR(100));
+   contributing_factor_vehicle_5 VARCHAR(100)
    --CONSTRAINT Collision_pk PRIMARY KEY (collision_id)
+);
 
 
 
