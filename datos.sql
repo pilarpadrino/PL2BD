@@ -119,9 +119,6 @@ CREATE TABLE IF NOT EXISTS temp.colision_vehiculo (
 
 
 );
---SELECT *
---FROM temp.colision_vehiculo
---LIMIT 5;
 
 
 
@@ -211,13 +208,7 @@ CREATE TABLE IF NOT EXISTS fin.colision_persona (
    contributing_factor_1 VARCHAR(25),
    contributing_factor_2 VARCHAR(25),
    person_sex CHAR(1) CHECK (person_sex='F' OR person_sex='M' OR person_sex='U' OR person_sex IS NULL)
-   --CONSTRAINT Vehiculo_pk FOREIGN KEY (vehicle_id) REFERENCES fin.vehiculo (vehicle_id) MATCH FULL
-      --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,                                                               -- debería de ser vehicle_id una clave extranjera, pero por errores en el fichero de datos esta clave extranjera no se puede implementar
-   --CONSTRAINT Person_pk FOREIGN KEY (person_id) REFERENCES fin.persona (person_id) MATCH FULL
-      --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,                                                               -- no vamos a poder designar esta clave extranjera a la clave compuesta (aunque así debería ser) porque el archivo de datos contiene en la columna person_id valores nulos
-   --CONSTRAINT Collision_pk FOREIGN KEY (collision_id) REFERENCES fin.accidentes (collision_id) MATCH FULL
-       --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
-   --CONSTRAINT id_primary_persona PRIMARY KEY (unique_id, collision_id, person_id)
+
 );
 
 CREATE TABLE IF NOT EXISTS fin.accidentes (
@@ -286,13 +277,7 @@ CREATE TABLE IF NOT EXISTS fin.colision_persona (
    contributing_factor_1 VARCHAR(25),
    contributing_factor_2 VARCHAR(25),
    person_sex CHAR(1) CHECK (person_sex='F' OR person_sex='M' OR person_sex='U' OR person_sex IS NULL)
-   --CONSTRAINT Vehiculo_pk FOREIGN KEY (vehicle_id) REFERENCES fin.vehiculo (vehicle_id) MATCH FULL
-      --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,                                                               -- debería de ser vehicle_id una clave extranjera, pero por errores en el fichero de datos esta clave extranjera no se puede implementar
-   --CONSTRAINT Person_pk FOREIGN KEY (person_id) REFERENCES fin.persona (person_id) MATCH FULL
-      --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,                                                               -- no vamos a poder designar esta clave extranjera a la clave compuesta (aunque así debería ser) porque el archivo de datos contiene en la columna person_id valores nulos
-   --CONSTRAINT Collision_pk FOREIGN KEY (collision_id) REFERENCES fin.accidentes (collision_id) MATCH FULL
-       --ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
-   --CONSTRAINT id_primary_persona PRIMARY KEY (unique_id, collision_id, person_id)
+
 );
 
 CREATE TABLE IF NOT EXISTS fin.colision_vehiculo (
@@ -477,8 +462,6 @@ FROM temp.vehiculos;
 
 
 
-
-
 INSERT INTO fin.colision_persona(unique_id,collision_id,crash_date,crash_time,person_id,person_type,person_injury,vehicle_id,person_age,ejection,emotional_status,bodily_injury,position_in_vehicle,safety_equipment,ped_location,ped_action,complaint,ped_role,contributing_factor_1,contributing_factor_2,person_sex
 )
 SELECT DISTINCT ON (temp.colision_persona.unique_id)  -- Evitar duplicados por unique_id
@@ -567,7 +550,7 @@ GROUP BY vehicle_make
 ORDER BY total DESC
 LIMIT 5;
 
---4) Mostrar los datos de aquellos conductores implicados en más de 1 accidente: RESULTADO EXTRAÑO SALEN IDs RAROS
+--4) Mostrar los datos de aquellos conductores implicados en más de 1 accidente:
 SELECT person_id, COUNT(*) AS num_accidentes
 FROM fin.colision_persona
 GROUP BY person_id
@@ -580,16 +563,13 @@ FROM fin.colision_persona
 WHERE person_age > 65 OR person_age < 26
 ORDER BY person_age ASC ;
 
--- 6) Mostrar los datos de los conductores que tienen como vehículo un “Pickup”: (NO APARECEN RESULTADOS) Si por ejemplo pones '
-SELECT p.*, v.vehicle_type
-FROM fin.persona AS p, fin.vehiculo AS v, (
-    SELECT DISTINCT person_id, vehicle_id
-    FROM fin.colision_persona
-    WHERE ped_role LIKE '%Driver%'
-) AS C
-WHERE p.person_id = C.person_id
-    AND C.vehicle_id = v.vehicle_id
-    AND v.vehicle_type LIKE 'Pickup';
+-- 6) Mostrar los datos de los conductores que tienen como vehículo un “Pickup”:
+SELECT p.*
+FROM fin.persona AS p
+JOIN fin.colision_persona AS cp ON p.person_id = cp.person_id
+JOIN fin.accidentes AS a ON cp.collision_id = a.collision_id
+WHERE a.vehicle_type_code_3 LIKE '%Pickup%';
+
 
 --7)Mostrar las 3 marcas de vehículos que sufren menos accidentes y los 3 tipos de vehículo que menos accidentes sufren:
 --7.1)Marcas de vehículos:
@@ -627,28 +607,4 @@ SELECT state_registration, COUNT(*) AS accident_count
 FROM fin.colision_vehiculo
 GROUP BY state_registration
 ORDER BY accident_count DESC;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
